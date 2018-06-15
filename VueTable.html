@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>VueTable</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+    <script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+</head>
+<body>
+
+<div id="vuetable" class="container">
+<h3>VueJs Table with Sort, Search and Select features </h3>
+    <div class="mb-4">{{selected}}</div>
+    <div class="row mb-4">
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="basic-addon1"> <i class="fa fa-search"></i></span>
+                </div>
+                <input type="text" name="query" class="form-control" aria-label="Username" aria-describedby="basic-addon1" v-model="searchString">
+            </div>
+        </div>
+        <div class="col text-right">
+            <span class="mr-4" v-if="selected.length > 0">{{selected.length}} item(s) selected</span>
+        </div>
+    </div>
+
+    <table class="table table-hover" id="logstable">
+        <thead>
+        <tr>
+            <th>
+                <label class="form-checkbox sr-only" for="selectallchkbox">Select all logfiles checkbox</label>
+                <input type="checkbox" id="selectallchkbox" v-model="selectAll" @click="select">
+            </th>
+            <th v-for="columnHeader in columnsHeaders">
+                <a v-bind:id="columnHeader" v-on:click="sortBy(columnHeader.sortKey)" :class="{ active: sortKey == columnHeader.sortKey }">
+                    {{columnHeader.tittle}} <i class="fa" :class="columnHeader.sortOrder > 0 ? 'fa-caret-down' : 'fa-caret-up'"></i>
+                </a>
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="rowData in filteredData">
+            <td>
+                <label class="form-checkbox sr-only">Select logfile checkbox</label>
+                <input type="checkbox" :value="rowData.name" v-model="selected">
+            </td>
+
+            <td v-bind:id="rowData.name">{{rowData.name}}</td>
+            <td v-bind:id="rowData.salary">{{rowData.salary}}</td>
+
+            <td name="actionbtn">
+                <div class="dropdown">
+                    <a class="btn" href="#" role="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false"> <i class="fa fa-ellipsis-h"></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <button class="dropdown-item">View Persona Details</button>
+                        <button class="dropdown-item">Edit Person</button>
+                        <button class="dropdown-item" >Delete Person</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+</body>
+<script>
+    var demo = new Vue({
+        el: '#vuetable',
+        data: {
+            selected: [],
+            selectAll: false,
+            searchString: '',
+            sortKey: 'name',
+            columnsHeaders: [
+                { tittle: 'Name', sortKey: 'name', sortOrder: 1},
+                { tittle: 'Salary', sortKey: 'salary', sortOrder: 1}
+            ],
+            dataList: ''
+        },
+        created : function() {
+            this.getData();
+        },
+        computed: {
+            filteredData: function () {
+                var data = this.dataList;
+                var sortKey = this.sortKey;
+                var filterString = this.searchString && this.searchString.toLowerCase();
+
+                var currentSortOrder = 0;
+                this.columnsHeaders.forEach(function (columnHeader) {
+                    if(columnHeader.sortKey == sortKey) {
+                        currentSortOrder = columnHeader.sortOrder || 1;
+                    }
+                });
+
+                if (filterString) {
+                    data = data.filter(function (row) {
+                        return Object.keys(row).some(function (key) {
+                            return String(row[key]).toLowerCase().indexOf(filterString) > -1
+                        })
+                    })
+                }
+
+                if (sortKey) {
+                    data = data.slice().sort(function (a, b) {
+                        a = a[sortKey];
+                        b = b[sortKey];
+                        return (a == b ? 0 : a > b ? 1 : -1) * currentSortOrder
+                    });
+                }
+                return data
+            }
+        },
+        methods: {
+            select: function () {
+                this.selected = [];
+                if (!this.selectAll) {
+                    for (var i in this.filteredData) {
+                        this.selected.push(this.filteredData[i].name);
+                    }
+                }
+            },
+            sortBy: function (key) {
+                this.sortKey = key;
+                this.columnsHeaders.forEach(function (columnHeader) {
+                    if(columnHeader.sortKey == key) {
+                        columnHeader.sortOrder = columnHeader.sortOrder * -1;
+                    }
+                });
+            },
+            getData: function() {
+                this.dataList = [
+                    { name: 'Rahul Ganta', salary: Infinity },
+                    { name: 'Brian', salary: 10 },
+                    { name: 'Jon Snow', salary: 100 },
+                    { name: 'Jessica Pearson', salary: 25 },
+                    { name: 'Daenerys Targaryen', salary: 250 },
+                    { name: 'Jessica Morgan', salary: 350 }
+                ]
+            }
+        }
+    })
+</script>
+</html>
