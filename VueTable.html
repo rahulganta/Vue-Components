@@ -25,7 +25,7 @@
                 <div class="input-group-append">
                     <span class="input-group-text" id="basic-addon1"> <i class="fa fa-search"></i></span>
                 </div>
-                <input type="text" name="query" class="form-control" aria-label="Username" aria-describedby="basic-addon1" v-model="searchString">
+                <input type="text" name="search" class="form-control" aria-label="Username" aria-describedby="basic-addon1" v-model="searchString">
             </div>
         </div>
         <div class="col text-right">
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <table class="table table-hover" id="logstable">
+    <table class="table table-hover" id="persontable">
         <thead>
         <tr>
             <th>
@@ -73,7 +73,6 @@
         </tr>
         </tbody>
     </table>
-
 </div>
 </body>
 <script>
@@ -88,10 +87,14 @@
                 { tittle: 'Name', sortKey: 'name', sortOrder: 1},
                 { tittle: 'Salary', sortKey: 'salary', sortOrder: 1}
             ],
-            dataList: ''
-        },
-        created : function() {
-            this.getData();
+            dataList: [
+                { name: 'Rahul Ganta', salary: Infinity },
+                { name: 'Brian', salary: 10 },
+                { name: 'Jon Snow', salary: 100 },
+                { name: 'Jessica Pearson', salary: 25 },
+                { name: 'Daenerys Targaryen', salary: 250 },
+                { name: 'Jessica Morgan', salary: 350 }
+            ]
         },
         computed: {
             filteredData: function () {
@@ -141,16 +144,6 @@
                     }
                 });
             },
-            getData: function() {
-                this.dataList = [
-                    { name: 'Rahul Ganta', salary: Infinity },
-                    { name: 'Brian', salary: 10 },
-                    { name: 'Jon Snow', salary: 100 },
-                    { name: 'Jessica Pearson', salary: 25 },
-                    { name: 'Daenerys Targaryen', salary: 250 },
-                    { name: 'Jessica Morgan', salary: 350 }
-                ]
-            }
         }
     })
 </script>
