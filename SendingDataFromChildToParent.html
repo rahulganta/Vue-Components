@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>VueTable</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+    <script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+</head>
+<body>
+<template id="ipsettings">
+    <div>
+        <div class="heading_5">IP Settings Configuration</div>
+
+        <div class="my-4">
+            <label class="pr-2 mdlabel" for="ipsettingstoggle">Set IP Settings Automatically:</label>
+            <input type="checkbox" id="ipsettingstoggle" v-on:change="resetForm()" v-model="isdhcp" >
+        </div>
+
+        <form @submit.prevent="validateBeforeSubmit" id="ipSetForm">
+
+            <div class="form-group row">
+                <label class="col-2 mdlabel" for="sdnsserver">Machine Name:*</label>
+                <input type="text" class="form-control col-4" ref="sdnsserver" id="sdnsserver" required="true" v-model="ipSettings.machineName" :disabled="isdhcp"/>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-2 mdlabel" for="staticip">Static IP Address:*</label>
+                <!--for custome error message add below attributes to input tag
+                oninvalid="setCustomValidity('IP address is required and format should be like 10.64.12.223')" onchange="try{setCustomValidity('')}catch(e){}"-->
+                <input type="text" class="form-control col-4" ref="staticip" id="staticip" required="true" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" v-model="ipSettings.ipAddress" :disabled="isdhcp"/>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-2 mdlabel" for="gatewatadd">Default Gateway:</label>
+                <input type="text" class="form-control col-4" ref="gatewayaddress" id="gatewatadd"  pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" v-model="ipSettings.gatwayAddress" :disabled="isdhcp"/>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-2 mdlabel" for="pdnsserver">DNS Server:</label>
+                <input type="text" class="form-control col-4" ref="pdnsserver" id="pdnsserver" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}" v-model="ipSettings.dnsServer" :disabled="isdhcp"/>
+            </div>
+
+            <div class="form-group col-lg-9 col-md-12 col-sm-12 text-right">
+                <button type="submit" class="btn  btn-primary mx-2">APPLY</button>
+            </div>
+        </form>
+
+    </div>
+</template>
+
+<div id="IPparent" class="container">
+    <h3>Send Data from Child to Parent </h3>
+    <ip-settings @ipsettings_event="configureNetwork"></ip-settings>
+</div>
+</body>
+<script>
+Vue.component('ip-settings', {
+    template: '#ipsettings',
+    data: function () {
+        return {
+            isdhcp: false,
+            ipSettings: {
+                machineName: '',
+                ipAddress: '',
+                subnetMask: '',
+                gatwayAddress: '',
+                dnsServer: ''
+            }
+        }
+    },
+    created: function (){
+        this.init();
+    },
+    methods: {
+        init: function () {
+
+        },
+        resetForm: function () {
+            if(this.isdhcp) {
+                document.getElementById("ipSetForm").reset();
+                this.ipSettings="";
+            }
+        },
+        validateBeforeSubmit: function() {
+
+        //implement custom validations if needed
+
+        //Emit event to parent and send data
+        this.$emit('ipsettings_event', this.ipSettings, this.isdhcp)
+        }
+    }
+});
+
+var vm = new Vue({
+    el: '#IPparent',
+    data: {
+
+    },
+    methods: {
+        configureNetwork: function (ipSettings, isdhcp) {
+            alert("This is Parent: \nThe Machine Name is: "+ ipSettings.machineName+" \nThe ip address is "+ipSettings.ipAddress);
+        }
+    }
+})
+</script>
+</html>
